@@ -1,0 +1,6 @@
+{
+  "name": "TGE RDN (Fixing I)",
+  "homeassistant": "2025.1.0",
+  "render_readme": true,
+  "country": ["PL"]
+}
