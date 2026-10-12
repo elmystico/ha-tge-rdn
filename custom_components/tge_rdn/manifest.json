@@ -1,0 +1,14 @@
+{
+  "domain": "tge_rdn",
+  "name": "TGE RDN",
+  "codeowners": ["@elmystico"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/elmystico/ha-tge-rdn",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/elmystico/ha-tge-rdn/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.1.0"
+}

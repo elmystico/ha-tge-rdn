@@ -1,0 +1,42 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "TGE RDN (Fixing I)",
+        "description": "Day-ahead electricity prices from Towarowa Giełda Energii (RDN Fixing I): current price and published future prices.",
+        "data": {
+          "unit": "Price unit"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "TGE RDN options",
+        "data": {
+          "unit": "Price unit"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "fixing_1": {
+        "name": "Fixing I"
+      },
+      "fixing_1_next_hour": {
+        "name": "Fixing I next hour"
+      },
+      "fixing_1_quarter": {
+        "name": "Fixing I quarter"
+      },
+      "last_update": {
+        "name": "Last update"
+      }
+    }
+  }
+}

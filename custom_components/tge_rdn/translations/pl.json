@@ -1,0 +1,42 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "TGE RDN (Fixing I)",
+        "description": "Ceny energii z Rynku Dnia Następnego TGE (Fixing I): cena bieżąca i opublikowane ceny na przyszłość.",
+        "data": {
+          "unit": "Jednostka ceny"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Integracja jest już skonfigurowana."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcje TGE RDN",
+        "data": {
+          "unit": "Jednostka ceny"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "fixing_1": {
+        "name": "Fixing I"
+      },
+      "fixing_1_next_hour": {
+        "name": "Fixing I następna godzina"
+      },
+      "fixing_1_quarter": {
+        "name": "Fixing I kwadrans"
+      },
+      "last_update": {
+        "name": "Ostatnia aktualizacja"
+      }
+    }
+  }
+}
