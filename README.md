@@ -101,8 +101,7 @@ Kod tej integracji został napisany od nowa.
 
 ## Wsparcie AI
 
-Kod, testy i dokumentację przygotowano przy wsparciu asystenta AI
-[Claude](https://www.anthropic.com/claude) (Anthropic), pod nadzorem i z weryfikacją
+Kod, testy i dokumentację przygotowano przy wsparciu asystenta AI, pod nadzorem i z weryfikacją
 autora na działającej instalacji Home Assistant. Dane testowe pochodzą z rzeczywistej
 publikacji TGE z 13.10.2026.
 
