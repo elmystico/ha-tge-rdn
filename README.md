@@ -87,8 +87,24 @@ Zamień `sensor.tge_fixing_1_rate` / `sensor.pge_tge_fixing_1_rate` na
 ## Plany
 
 Okna najtańszych/najdroższych godzin i cena całkowita (energia + marża + dystrybucja
-wg taryfy) będą osobnym modułem. Wstępna wersja okien jest na gałęzi
-`feature/windows-energy-price`.
+wg taryfy) będą osobnym modułem.
+
+## Podziękowania
+
+Projekt powstał z inspiracji integracjami
+[Home-Assistant-custom-components-TGE](https://github.com/PiotrMachowski/Home-Assistant-custom-components-TGE)
+i [PGE-TGE](https://github.com/PiotrMachowski/Home-Assistant-custom-components-PGE-TGE)
+autorstwa [Piotra Machowskiego](https://github.com/PiotrMachowski). Z jego pracy pochodzi
+pomysł na źródło danych oraz format atrybutów (`prices_today`, `prices_tomorrow`,
+`prices`), który zachowaliśmy dla zgodności z istniejącymi wykresami i automatyzacjami.
+Kod tej integracji został napisany od nowa.
+
+## Wsparcie AI
+
+Kod, testy i dokumentację przygotowano przy wsparciu asystenta AI
+[Claude](https://www.anthropic.com/claude) (Anthropic), pod nadzorem i z weryfikacją
+autora na działającej instalacji Home Assistant. Dane testowe pochodzą z rzeczywistej
+publikacji TGE z 13.10.2026.
 
 ## Licencja
 
