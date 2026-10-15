@@ -52,6 +52,8 @@ bez marży sprzedawcy i bez dystrybucji**.
 ```
 
 **Wykres ApexCharts (dziś i jutro):**
+<img width="1029" height="764" alt="image" src="https://github.com/user-attachments/assets/c74b8c8c-03ed-4d30-8b9d-959666d777a5" />
+[na obrazie wykres cen z giełdy plus ceny całkowitej przy taryfie G13]
 
 ```yaml
 type: custom:apexcharts-card
