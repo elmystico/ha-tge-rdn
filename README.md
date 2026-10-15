@@ -51,9 +51,11 @@ bez marży sprzedawcy i bez dystrybucji**.
 {% if jutro %}Najtaniej jutro: {{ (jutro | min(attribute='price')).time }}{% endif %}
 ```
 
-**Wykres ApexCharts (dziś i jutro):**
-<img width="1029" height="764" alt="image" src="https://github.com/user-attachments/assets/c74b8c8c-03ed-4d30-8b9d-959666d777a5" />
-[na obrazie wykres cen z giełdy plus ceny całkowitej przy taryfie G13]
+### Wykresy ApexCharts
+
+Wymagają karty [apexcharts-card](https://github.com/RomRider/apexcharts-card) (HACS → Frontend).
+
+**Wersja uproszczona** — sam Fixing I, dziś i jutro na jednym wykresie (48 h):
 
 ```yaml
 type: custom:apexcharts-card
@@ -73,6 +75,120 @@ series:
       return entity.attributes.prices.map(p => [new Date(p.time), p.price]);
 ```
 
+**Wersja rozbudowana (używana u nas)** — osobne wykresy na dziś i jutro. Jasne słupki
+to Fixing I (zł/MWh netto, lewa oś), a kolorowe to cena całkowita w taryfie G13,
+czyli energia + marża + dystrybucja + akcyza + VAT (zł/kWh brutto, prawa oś).
+Kolor słupka ceny całkowitej przechodzi od zielonego (najtaniej) przez żółty do
+czerwonego (najdrożej). Skala jest wspólna dla dziś i jutro, liczona z atrybutu
+`prices` encji ceny całkowitej, więc kolory obu dni są porównywalne.
+
+Cenę całkowitą liczy osobna integracja
+[ha-pl-energy-tariff](https://github.com/elmystico/ha-pl-energy-tariff); tutaj
+encja `sensor.taryfa_g13_dynamiczna_total_price` (taryfa G13, energia wg cen dynamicznych).
+Przy innej nazwie wpisu zamień ją w obu seriach i w funkcji koloru.
+
+<img width="1029" height="764" alt="Wykresy ApexCharts: Fixing I TGE RDN oraz cena całkowita w taryfie G13, dziś i jutro" src="https://github.com/user-attachments/assets/c74b8c8c-03ed-4d30-8b9d-959666d777a5" />
+
+```yaml
+type: vertical-stack
+cards:
+  - type: custom:apexcharts-card
+    graph_span: 24h
+    span:
+      start: day
+    header:
+      show: true
+      title: Ceny prądu – dziś
+    now:
+      show: true
+      label: Teraz
+    series:
+      - entity: sensor.tge_rdn_fixing_1
+        type: column
+        name: Fixing I [zł/MWh netto]
+        color: "#DDDCFF"
+        float_precision: 2
+        yaxis_id: rdn
+        data_generator: |
+          return entity.attributes.prices_today.map(p => [new Date(p.time), p.price]);
+      - entity: sensor.taryfa_g13_dynamiczna_total_price
+        type: column
+        name: Cena całkowita [zł/kWh brutto]
+        float_precision: 4
+        yaxis_id: total
+        data_generator: |
+          return entity.attributes.prices_today.map(p => [new Date(p.time), p.price]);
+    yaxis: &osie
+      - id: rdn
+        decimals: 0
+        apex_config:
+          title:
+            text: zł/MWh netto
+      - id: total
+        opposite: true
+        decimals: 2
+        min: 0
+        apex_config:
+          title:
+            text: zł/kWh brutto
+    apex_config: &kolory
+      # seria 0 (Fixing I) stały kolor; seria 1 (cena całkowita) gradient
+      # zielony → żółty → czerwony wg min–max cen całkowitych z dziś i jutro
+      colors: &kolor
+        - "#DDDCFF"
+        - |
+          EVAL:function({ value, seriesIndex, w }) {
+            if (seriesIndex === 0) return '#DDDCFF';
+            let d = [];
+            try {
+              const st = document.querySelector('home-assistant').hass
+                .states['sensor.taryfa_g13_dynamiczna_total_price'];
+              d = (st.attributes.prices || []).map(p => p.price);
+            } catch (e) {}
+            if (!d.length) d = w.globals.series[1].filter(v => v != null);
+            const lo = Math.min(...d), hi = Math.max(...d);
+            const t = Math.max(0, Math.min(1, hi > lo ? (value - lo) / (hi - lo) : 0.5));
+            const mix = (a, b, k) => Math.round(a + (b - a) * k);
+            const c = t < 0.5
+              ? [mix(46, 255, t * 2), mix(160, 193, t * 2), mix(67, 7, t * 2)]
+              : [mix(255, 229, (t - 0.5) * 2), mix(193, 57, (t - 0.5) * 2), mix(7, 53, (t - 0.5) * 2)];
+            return 'rgb(' + c.join(',') + ')';
+          }
+      fill:
+        colors: *kolor
+  - type: custom:apexcharts-card
+    graph_span: 24h
+    span:
+      start: day
+      offset: +1d
+    header:
+      show: true
+      title: Ceny prądu – jutro
+    series:
+      - entity: sensor.tge_rdn_fixing_1
+        type: column
+        name: Fixing I [zł/MWh netto]
+        color: "#DDDCFF"
+        float_precision: 2
+        yaxis_id: rdn
+        data_generator: |
+          return entity.attributes.prices_tomorrow.map(p => [new Date(p.time), p.price]);
+      - entity: sensor.taryfa_g13_dynamiczna_total_price
+        type: column
+        name: Cena całkowita [zł/kWh brutto]
+        float_precision: 4
+        yaxis_id: total
+        data_generator: |
+          return entity.attributes.prices_tomorrow.map(p => [new Date(p.time), p.price]);
+    yaxis: *osie
+    apex_config: *kolory
+```
+
+Kotwice YAML (`&osie`, `&kolory`, `&kolor`) działają przy wklejaniu do edytora karty
+lub dashboardu w trybie YAML. Edytor wizualny po zapisie rozwija je do pełnej treści.
+Jutrzejszy wykres jest pusty, dopóki TGE nie opublikuje cen (zwykle ok. 13:00).
+Encja ceny całkowitej musi mieć w atrybutach `prices_today`, `prices_tomorrow` i `prices`.
+
 ## Migracja z integracji TGE / PGE-TGE
 
 Zamień `sensor.tge_fixing_1_rate` / `sensor.pge_tge_fixing_1_rate` na
@@ -86,10 +202,12 @@ Zamień `sensor.tge_fixing_1_rate` / `sensor.pge_tge_fixing_1_rate` na
 - Czas liczony w strefie `Europe/Warsaw` niezależnie od strefy ustawionej w HA.
 - Cache: `.storage/tge_rdn.<entry_id>`, trzymane są 2 dni wstecz, dziś i jutro.
 
-## Plany
+## Powiązana integracja
 
-Okna najtańszych/najdroższych godzin i cena całkowita (energia + marża + dystrybucja
-wg taryfy) będą osobnym modułem.
+Cena całkowita (energia + marża + dystrybucja wg taryfy G, akcyza, VAT), okna
+najtańszych/najdroższych godzin i wskaźniki do automatyzacji są w osobnej integracji
+[ha-pl-energy-tariff](https://github.com/elmystico/ha-pl-energy-tariff), która jako
+źródło cen używa `sensor.tge_rdn_fixing_1`.
 
 ## Podziękowania
 
