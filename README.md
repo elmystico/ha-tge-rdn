@@ -39,7 +39,7 @@ cena bieżąca i wszystkie opublikowane ceny na przyszłość (dziś i jutro).
 | `sensor.tge_rdn_fixing_1_quarter` | *(domyślnie wyłączona)* Fixing I bieżącego kwadransu | `prices_today`, `prices_tomorrow` co 15 min |
 | `sensor.tge_rdn_last_update` | ostatnie udane pobranie z TGE (diagnostyka) | `tomorrow_status` (`pending` / `waiting` / `available` / `error`), `last_error`, `cached_days` |
 
-Jednostka do wyboru: `zł/MWh` (jak na TGE), `zł/kWh`, `gr/kWh`. Ceny są **netto,
+Jednostka do wyboru: `PLN/MWh` (jak na TGE), `PLN/kWh`, `gr/kWh` (kod waluty wg ISO 4217, jak wymaga HA; od 0.2.0 — wcześniejsze `zł/…` są migrowane automatycznie). Ceny są **netto,
 bez marży sprzedawcy i bez dystrybucji**.
 
 ## Przykłady

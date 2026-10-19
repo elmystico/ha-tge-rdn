@@ -18,11 +18,14 @@ STORAGE_VERSION: Final = 1
 
 CONF_UNIT: Final = "unit"
 
-UNIT_ZL_MWH: Final = "zł/MWh"
-UNIT_ZL_KWH: Final = "zł/kWh"
+# Kody walut wg ISO 4217 (wymóg HA dla monetary i cen w panelu Energia).
+UNIT_ZL_MWH: Final = "PLN/MWh"
+UNIT_ZL_KWH: Final = "PLN/kWh"
 UNIT_GR_KWH: Final = "gr/kWh"
 UNITS: Final = [UNIT_ZL_MWH, UNIT_ZL_KWH, UNIT_GR_KWH]
 DEFAULT_UNIT: Final = UNIT_ZL_MWH
+# Jednostki z wersji <= 0.1.x, migrowane przy starcie wpisu.
+LEGACY_UNITS: Final = {"zł/MWh": UNIT_ZL_MWH, "zł/kWh": UNIT_ZL_KWH}
 
 RES_HOUR: Final = "hour"
 RES_QUARTER: Final = "quarter"

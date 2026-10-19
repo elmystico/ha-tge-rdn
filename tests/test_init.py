@@ -28,7 +28,7 @@ async def setup(hass: HomeAssistant, aioclient_mock, freezer):
     freezer.move_to("2026-10-13 09:00:00+02:00")
     aioclient_mock.get(url_for_delivery(D13), text=build_page(D13))
     aioclient_mock.get(url_for_delivery(D14), text=build_page(D14, blank=True))
-    entry = MockConfigEntry(domain=DOMAIN, title="TGE RDN", data={}, options={"unit": "zł/MWh"})
+    entry = MockConfigEntry(domain=DOMAIN, title="TGE RDN", data={}, options={"unit": "PLN/MWh"})
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await _done(hass)
@@ -38,7 +38,7 @@ async def setup(hass: HomeAssistant, aioclient_mock, freezer):
 async def test_sensors(hass: HomeAssistant, setup, aioclient_mock):
     st = hass.states.get("sensor.tge_rdn_fixing_1")
     assert float(st.state) == 794.39  # H10 = 09:00-10:00
-    assert st.attributes["unit_of_measurement"] == "zł/MWh"
+    assert st.attributes["unit_of_measurement"] == "PLN/MWh"
     today = st.attributes["prices_today"]
     assert len(today) == 24
     assert today[0] == {"time": "2026-10-13T00:00:00+02:00", "price": 660.25}
@@ -105,7 +105,7 @@ async def test_cache_survives_restart(hass: HomeAssistant, setup, aioclient_mock
 async def test_options_change_unit(hass: HomeAssistant, setup):
     entry = setup
     result = await hass.config_entries.options.async_init(entry.entry_id)
-    result = await hass.config_entries.options.async_configure(result["flow_id"], {"unit": "zł/kWh"})
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {"unit": "PLN/kWh"})
     assert result["type"] == "create_entry"
     await _done(hass)
     st = hass.states.get("sensor.tge_rdn_fixing_1")
@@ -118,7 +118,7 @@ async def test_config_flow(hass: HomeAssistant, aioclient_mock, freezer):
     aioclient_mock.get(url_for_delivery(D13), text=build_page(D13))
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
     assert result["type"] == "form"
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"unit": "zł/MWh"})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"unit": "PLN/MWh"})
     assert result["type"] == "create_entry"
     await _done(hass)
     assert hass.states.get("sensor.tge_rdn_fixing_1") is not None
@@ -132,3 +132,16 @@ async def test_wrong_day_fails_setup(hass: HomeAssistant, aioclient_mock, freeze
     await hass.config_entries.async_setup(entry.entry_id)
     await _done(hass)
     assert entry.state.name == "SETUP_RETRY"
+
+
+async def test_legacy_unit_migrated(hass: HomeAssistant, aioclient_mock, freezer):
+    await hass.config.async_set_time_zone("Europe/Warsaw")
+    freezer.move_to("2026-10-13 09:00:00+02:00")
+    aioclient_mock.get(url_for_delivery(D13), text=build_page(D13))
+    aioclient_mock.get(url_for_delivery(D14), text=build_page(D14, blank=True))
+    entry = MockConfigEntry(domain=DOMAIN, title="TGE RDN", data={}, options={"unit": "zł/MWh"})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await _done(hass)
+    assert entry.options["unit"] == "PLN/MWh"
+    assert hass.states.get("sensor.tge_rdn_fixing_1").attributes["unit_of_measurement"] == "PLN/MWh"
