@@ -139,3 +139,25 @@ def test_dst_25h_real_page():
     assert (h2a.fixing1, h3.fixing1) == (380.01, 380.00)
     assert [q.fixing1 for q in day.quarters[8:12]] == [406.01, 396.01, 351.03, 366.99]
     assert day.hours[-1].end == datetime(2026, 10, 26, 0, 0, tzinfo=TZ)
+
+
+@pytest.mark.parametrize("skipped_as", ["absent", "dashes"])
+def test_dst_23h_page(skipped_as):
+    """2026-03-29 (clocks forward): 02:00–03:00 does not exist -> 23 h / 92 quarters.
+    TGE may omit the hour (H03, Q02:15…Q03:00) or list it with '-' prices."""
+    base = load_rows()
+    blocks = [base[i * 5:(i + 1) * 5] for i in range(24)]
+    rows = []
+    for i, blk in enumerate(blocks):
+        if i == 2:  # H03 block = 02:00–03:00
+            if skipped_as == "absent":
+                continue
+            blk = [[r[0], "-", "-", "-", "-"] for r in blk]
+        rows.extend(blk)
+    d = date(2026, 3, 29)
+    day = parse_page(build_page(d, rows), d)
+    assert len(day.hours) == 23 and len(day.quarters) == 92
+    assert day.hours[1].end == datetime(2026, 3, 29, 3, 0, tzinfo=TZ)
+    assert day.hours[2].start.hour == 3 and day.hours[2].start.utcoffset() == timedelta(hours=2)
+    assert day.hours[2].fixing1 == pytest.approx(float(blocks[3][0][1].replace(",", ".")))
+    assert day.hours[-1].end == datetime(2026, 3, 30, 0, 0, tzinfo=TZ)

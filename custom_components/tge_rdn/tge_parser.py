@@ -277,6 +277,19 @@ def parse_page(html: str, delivery: date) -> DayPrices:
     q_starts = slot_starts(delivery, 15)
     warnings: list[str] = []
 
+    # 23 h day (clocks forward): the non-existent hour may be listed with "-" in
+    # every price cell. Drop such rows only if that yields exactly the calendar shape.
+    if len(h_starts) < 24:
+        def drop_empty(rows, n):
+            kept = [r for r in rows if r[0] is not None]
+            return kept if len(rows) > n and len(kept) == n else rows
+
+        q0, h0 = len(quarter_rows), len(hour_rows)
+        quarter_rows = drop_empty(quarter_rows, len(q_starts))
+        hour_rows = drop_empty(hour_rows, len(h_starts))
+        if (q0, h0) != (len(quarter_rows), len(hour_rows)):
+            warnings.append("23 h day: empty rows of the skipped hour dropped")
+
     if len(quarter_rows) != len(q_starts):
         raise TgeParseError(
             f"expected {len(q_starts)} quarter rows, got {len(quarter_rows)}"
