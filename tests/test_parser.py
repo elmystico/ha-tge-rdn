@@ -123,3 +123,19 @@ def test_dst_25h_page():
     day = parse_page(build_page(d, rows25), d)
     assert len(day.hours) == 25 and len(day.quarters) == 100
     assert day.hours[-1].end == datetime(2026, 10, 26, 0, 0, tzinfo=TZ)
+
+
+def test_dst_25h_real_page():
+    """Real tge.pl page for 2026-10-25 (session 24-10): H02a and Q01a:15…Q02a:00."""
+    d = date(2026, 10, 25)
+    day = parse_page(build_page(d, load_rows("rdn_2026-10-25.txt")), d)
+    assert len(day.hours) == 25 and len(day.quarters) == 100
+    assert not day.warnings
+    # 02:00 occurs twice: first in CEST (H02a), then in CET (H03)
+    h2a, h3 = day.hours[2], day.hours[3]
+    assert (h2a.start.hour, h3.start.hour) == (2, 2)
+    assert h2a.start.utcoffset() == timedelta(hours=2)
+    assert h3.start.utcoffset() == timedelta(hours=1)
+    assert (h2a.fixing1, h3.fixing1) == (380.01, 380.00)
+    assert [q.fixing1 for q in day.quarters[8:12]] == [406.01, 396.01, 351.03, 366.99]
+    assert day.hours[-1].end == datetime(2026, 10, 26, 0, 0, tzinfo=TZ)

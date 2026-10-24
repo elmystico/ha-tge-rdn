@@ -6,7 +6,8 @@ Source page: https://tge.pl/energia-elektryczna-rdn?dateShow=DD-MM-YYYY
 ``dateShow`` is the *trading session* date; the table shows delivery on the next day.
 
 Table ``#rdn`` rows (one per instrument), first cells:
-    [0] id            e.g. ``2026-10-13_H01`` (60 min) or ``2026-10-13_Q00:15`` (15 min)
+    [0] id            e.g. ``2026-10-13_H01`` (60 min) or ``2026-10-13_Q00:15`` (15 min);
+                      repeated hour on the 25 h day: ``H02a``, ``Q01a:15`` … ``Q02a:00``
     [1] type          ``60`` or ``15``
     [2] Fixing I      price [PLN/MWh]
     [3] Fixing I      volume [MW]
@@ -45,7 +46,10 @@ PRICE_MAX = 100000.0
 # (verified on real data). Larger deviations mean the table changed meaning.
 HOUR_VS_QUARTERS_TOLERANCE = 1.0  # PLN/MWh
 
-ROW_ID_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})_([HQ])([0-9:]+)([A-Za-z]?)$")
+# Repeated hour on the 25 h day (clocks back) is labelled with a letter after the
+# hour number: ``H02a`` and its quarters ``Q01a:15`` … ``Q02a:00`` (2026-10-25).
+# Rows are listed chronologically, so they map 1:1 onto consecutive UTC slots.
+ROW_ID_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})_([HQ])(\d{2}[A-Za-z]?(?::\d{2})?)([A-Za-z]?)$")
 DELIVERY_RE = re.compile(r"dostawy\s+w\s+dniu\s+(\d{2})-(\d{2})-(\d{4})", re.I)
 
 
