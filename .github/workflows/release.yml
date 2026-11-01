@@ -1,6 +1,10 @@
 name: Release
 
+# Wydanie powstaje z samego tagu vX.Y.Z (opis = treść tagu z adnotacją),
+# albo ręcznie opublikowane wydanie dostaje paczkę zip.
 on:
+  push:
+    tags: ['v*']
   release:
     types: [published]
 
@@ -17,8 +21,15 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           jq --arg v "$VERSION" '.version=$v' custom_components/tge_rdn/manifest.json > m.json
           mv m.json custom_components/tge_rdn/manifest.json
+      - name: Release notes from tag
+        if: github.event_name == 'push'
+        run: |
+          git fetch --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
+          git tag -l --format='%(contents)' "$GITHUB_REF_NAME" > notes.md
       - name: Zip
         run: cd custom_components/tge_rdn && zip -r ../../tge_rdn.zip .
       - uses: softprops/action-gh-release@v2
         with:
           files: tge_rdn.zip
+          body_path: ${{ github.event_name == 'push' && 'notes.md' || '' }}
+          make_latest: legacy
