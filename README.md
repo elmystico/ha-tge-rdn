@@ -23,12 +23,16 @@ cena bieżąca i wszystkie opublikowane ceny na przyszłość (dziś i jutro).
   `prices` → `[{time, price}]`), więc istniejące wykresy ApexCharts działają po zmianie
   nazwy encji.
 
-## Instalacja (HACS)
+## Instalacja
 
-1. HACS → ⋮ → *Custom repositories* → `https://github.com/elmystico/ha-tge-rdn`,
-   kategoria **Integration**.
-2. Zainstaluj „TGE RDN (Fixing I)”, zrestartuj HA.
-3. Ustawienia → Urządzenia i usługi → Dodaj integrację → **TGE RDN**, wybierz jednostkę.
+**Home Assistant 2026.11 i nowszy (Marketplace):**
+
+1. Ustawienia → Marketplace → wyszukaj „TGE RDN (Fixing I)” → Pobierz, zrestartuj HA.
+2. Ustawienia → Urządzenia i usługi → Dodaj integrację → **TGE RDN**, wybierz jednostkę.
+
+**Starsze wersje (HACS):** HACS → wyszukaj „TGE RDN (Fixing I)” → Pobierz, zrestartuj HA,
+potem krok 2 jak wyżej. Integracja jest w domyślnym katalogu, więc nie trzeba już dodawać
+repozytorium jako *Custom repository*.
 
 ## Encje
 
@@ -53,7 +57,7 @@ bez marży sprzedawcy i bez dystrybucji**.
 
 ### Wykresy ApexCharts
 
-Wymagają karty [apexcharts-card](https://github.com/RomRider/apexcharts-card) (HACS → Frontend).
+Wymagają karty [apexcharts-card](https://github.com/RomRider/apexcharts-card) (Marketplace / HACS → Frontend).
 
 **Wersja uproszczona** — sam Fixing I, dziś i jutro na jednym wykresie (48 h):
 
